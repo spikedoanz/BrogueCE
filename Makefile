@@ -49,6 +49,11 @@ sources += $(addprefix src/platform/,web-platform.c)
 cppflags += -DBROGUE_WEB
 endif
 
+ifeq ($(HEADLESS),YES)
+sources += $(addprefix src/platform/,headless-platform.c)
+cppflags += -DBROGUE_HEADLESS
+endif
+
 ifeq ($(RAPIDBROGUE),YES)
 cppflags += -DRAPID_BROGUE
 endif

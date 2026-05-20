@@ -29,6 +29,9 @@ static void printCommandlineHelp() {
 #ifdef BROGUE_WEB
     "--server-mode              run the game in web-brogue server mode\n"
 #endif
+#ifdef BROGUE_HEADLESS
+    "--headless                 run a new game in text-dump headless mode\n"
+#endif
 #ifdef BROGUE_SDL
     "--size N                   starts the game at font size N (1 to 20)\n"
     "--graphics     -G          enable graphical tiles\n"
@@ -292,6 +295,15 @@ int main(int argc, char *argv[])
 #ifdef BROGUE_WEB
         if(strcmp(argv[i], "--server-mode") == 0) {
             currentConsole = webConsole;
+            rogue.nextGame = NG_NEW_GAME;
+            serverMode = true;
+            continue;
+        }
+#endif
+
+#ifdef BROGUE_HEADLESS
+        if(strcmp(argv[i], "--headless") == 0) {
+            currentConsole = headlessConsole;
             rogue.nextGame = NG_NEW_GAME;
             serverMode = true;
             continue;
