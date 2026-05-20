@@ -164,10 +164,9 @@ static void dumpScreen(const char *reason) {
 }
 
 static boolean keyIsForbiddenInHeadless(int input) {
-    // Ban automation at the headless platform boundary. A model or script should have to play by
-    // issuing concrete game actions; otherwise a huge scripted tail can continue on the death
-    // screen and make the run logs misleading.
-    return input == EXPLORE_KEY || input == AUTOPLAY_KEY;
+    // Ban full autopilot at the headless platform boundary. Auto-explore is still allowed because
+    // it is a normal Brogue command and stops on danger; the Python runner handles death early-exit.
+    return input == AUTOPLAY_KEY;
 }
 
 static void writeUtf8(FILE *file, unsigned int codepoint) {
