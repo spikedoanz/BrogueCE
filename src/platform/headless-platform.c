@@ -27,6 +27,7 @@ static void headless_notifyEvent(short eventId, int data1, int data2, const char
 static void ensureDumpDirectory(void);
 static void dumpScreen(const char *reason);
 static void writeUtf8(FILE *file, unsigned int codepoint);
+static boolean keyIsForbiddenInHeadless(int input);
 
 static void headless_gameLoop(void) {
     ensureDumpDirectory();
@@ -53,12 +54,16 @@ static void headless_nextKeyOrMouseEvent(rogueEvent *returnEvent, boolean textIn
 
     do {
         input = getchar();
-    } while (input == '\n' || input == '\r');
 
-    // A driving script can close stdin when it only wants the latest dumped screen.
-    if (input == EOF) {
-        exit(0);
-    }
+        // A driving script can close stdin when it only wants the latest dumped screen.
+        if (input == EOF) {
+            exit(0);
+        }
+
+        if (keyIsForbiddenInHeadless(input)) {
+            fprintf(stderr, "Ignoring forbidden headless key: %c\n", input);
+        }
+    } while (input == '\n' || input == '\r' || keyIsForbiddenInHeadless(input));
 
     returnEvent->eventType = KEYSTROKE;
     returnEvent->param1 = input;
@@ -156,6 +161,13 @@ static void dumpScreen(const char *reason) {
     }
 
     fclose(file);
+}
+
+static boolean keyIsForbiddenInHeadless(int input) {
+    // Ban automation at the headless platform boundary. A model or script should have to play by
+    // issuing concrete game actions; otherwise a huge scripted tail can continue on the death
+    // screen and make the run logs misleading.
+    return input == EXPLORE_KEY || input == AUTOPLAY_KEY;
 }
 
 static void writeUtf8(FILE *file, unsigned int codepoint) {
